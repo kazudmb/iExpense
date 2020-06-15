@@ -14,6 +14,8 @@ struct AddView: View {
     @State private var amount = ""
     @ObservedObject var expenses: Expenses
     @Environment(\.presentationMode) var presentationMode
+    
+    @State private var showingAlert = false
 
     static let types = ["Business", "Personal"]
 
@@ -29,12 +31,17 @@ struct AddView: View {
                 TextField("Amount", text: $amount)
                     .keyboardType(.numberPad)
             }
+            .alert(isPresented: $showingAlert) {
+                Alert(title: Text("Please input amount of money"))
+            }
             .navigationBarTitle("Add new expense")
             .navigationBarItems(trailing: Button("Save") {
                 if let actualAmount = Int(self.amount) {
                     let item = ExpenseItem(name: self.name, type: self.type, amount: actualAmount)
                     self.expenses.items.append(item)
                     self.presentationMode.wrappedValue.dismiss()
+                } else {
+                    self.showingAlert.toggle()
                 }
             })
         }

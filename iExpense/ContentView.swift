@@ -11,40 +11,59 @@ import SwiftUI
 struct ContentView: View {
     @ObservedObject var expenses = Expenses()
     @State private var showingAddExpense = false
-
+    
     var body: some View {
         NavigationView {
             List {
                 ForEach(expenses.items) { item in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text(item.name)
-                                .font(.headline)
-                            Text(item.type)
+                    ZStack {
+                        self.setBackGroundColor(amount: item.amount)
+                     
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text(item.name)
+                                    .font(.headline)
+                                Text(item.type)
+                            }
+                            
+                            Spacer()
+                            Text("$\(item.amount)")
                         }
-
-                        Spacer()
-                        Text("$\(item.amount)")
                     }
                 }
                 .onDelete(perform: removeItems)
             }
-                .sheet(isPresented: $showingAddExpense) {
-                    AddView(expenses: self.expenses)
-                }
+            .sheet(isPresented: $showingAddExpense) {
+                AddView(expenses: self.expenses)
+            }
             .navigationBarTitle("iExpense")
-            .navigationBarItems(trailing:
+            .navigationBarItems(leading:
+                EditButton(), trailing:
                 Button(action: {
                     self.showingAddExpense = true
                 }) {
                     Image(systemName: "plus")
-                }
-            )
+            })
         }
     }
     
     func removeItems(at offsets: IndexSet) {
         expenses.items.remove(atOffsets: offsets)
+    }
+    
+    func setBackGroundColor(amount: Int) -> Color {
+        
+        var backgroundColor: Color = .clear
+        
+        if amount < 10 {
+            backgroundColor = .blue
+        } else if amount < 100 {
+            backgroundColor = .yellow
+        } else {
+            backgroundColor = .red
+        }
+        
+        return backgroundColor
     }
 }
 
@@ -65,7 +84,7 @@ class Expenses: ObservableObject {
                 return
             }
         }
-
+        
         self.items = []
     }
     
